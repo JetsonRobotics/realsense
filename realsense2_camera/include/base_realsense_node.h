@@ -24,7 +24,25 @@ namespace realsense2_camera
         base_depth_output_trigger_enabled,
         base_depth_units,
         base_JSON_file_path,
+        base_enable_depth_to_disparity_filter,
+        base_enable_spatial_filter,
+        base_enable_temporal_filter,
+        base_enable_disparity_to_depth_filter,
+        base_spatial_filter_magnitude,
+        base_spatial_filter_smooth_alpha,
+        base_spatial_filter_smooth_delta,
+        base_spatial_filter_holes_fill,
+        base_temporal_filter_smooth_alpha,
+        base_temporal_filter_smooth_delta,
+        base_temporal_filter_holes_fill,
         base_depth_count
+    };
+
+    enum filters{
+        DEPTH_TO_DISPARITY,
+        SPATIAL,
+        TEMPORAL,
+        DISPARITY_TO_DEPTH
     };
 
     struct FrequencyDiagnostics
@@ -51,6 +69,19 @@ namespace realsense2_camera
     };
     typedef std::pair<image_transport::Publisher, std::shared_ptr<FrequencyDiagnostics>> ImagePublisherWithFrequencyDiagnostics;
 
+    /**
+    Class to encapsulate a filter alongside its options
+    */
+    class filter_options
+    {
+    public:
+        filter_options(const std::string name, rs2::process_interface& filter);
+        filter_options(filter_options&& other);
+        std::string filter_name;           // Friendly name of the filter
+        rs2::process_interface& filter;    // The filter in use
+        std::atomic_bool is_enabled;       // A boolean controlled by the user that determines whether to apply the filter or not
+    };
+
     class BaseRealSenseNode : public InterfaceRealSenseNode
     {
     public:
@@ -69,6 +100,11 @@ namespace realsense2_camera
         rs2::device _dev;
         ros::NodeHandle& _node_handle, _pnh;
         std::map<stream_index_pair, rs2::sensor> _sensors;
+        rs2::spatial_filter  spat_filter;    // Spatial    - edge-preserving spatial smoothing
+        rs2::temporal_filter temp_filter;    // Temporal   - reduces temporal noise
+        rs2::disparity_transform depth_to_disparity{true};
+        rs2::disparity_transform disparity_to_depth{false};
+        std::vector<filter_options> filters;
 
     private:
         struct float3
@@ -95,10 +131,12 @@ namespace realsense2_camera
                                const std::string& to);
         void publishStaticTransforms();
         void publishRgbToDepthPCTopic(const ros::Time& t, const std::map<stream_index_pair, bool>& is_frame_arrived);
+        void publishDepthPCTopic(const ros::Time& t, const std::map<stream_index_pair, bool>& is_frame_arrived);
         Extrinsics rsExtrinsicsToMsg(const rs2_extrinsics& extrinsics, const std::string& frame_id) const;
         rs2_extrinsics getRsExtrinsics(const stream_index_pair& from_stream, const stream_index_pair& to_stream);
 
         IMUInfo getImuInfo(const stream_index_pair& stream_index);
+        void filterFrame(rs2::frame& f);
         void publishFrame(rs2::frame f, const ros::Time& t,
                           const stream_index_pair& stream,
                           std::map<stream_index_pair, cv::Mat>& images,
@@ -156,7 +194,8 @@ namespace realsense2_camera
         double _camera_time_base;
         std::map<stream_index_pair, std::vector<rs2::stream_profile>> _enabled_profiles;
 
-        ros::Publisher _pointcloud_publisher;
+        ros::Publisher _pointcloud_xyz_publisher;
+        ros::Publisher _pointcloud_xyzrgb_publisher;
         ros::Time _ros_time_base;
         bool _align_depth;
         bool _sync_frames;
