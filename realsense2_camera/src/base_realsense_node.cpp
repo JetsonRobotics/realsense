@@ -113,9 +113,10 @@ void BaseRealSenseNode::getParameters()
     ROS_INFO("getParameters...");
 
     _pnh.param("align_depth", _align_depth, ALIGN_DEPTH);
+    _pnh.param("enable_colored_pointcloud", _colored_pointcloud, POINTCLOUD);
     _pnh.param("enable_pointcloud", _pointcloud, POINTCLOUD);
     _pnh.param("enable_sync", _sync_frames, SYNC_FRAMES);
-    if (_pointcloud || _align_depth)
+    if (_colored_pointcloud || _align_depth)
         _sync_frames = true;
 
     _pnh.param("json_file_path", _json_file_path, std::string(""));
@@ -220,6 +221,7 @@ void BaseRealSenseNode::setupDevice()
         ROS_INFO_STREAM("Device Product ID: 0x" << pid);
 
         ROS_INFO_STREAM("Enable PointCloud: " << ((_pointcloud)?"On":"Off"));
+        ROS_INFO_STREAM("Enable Color Registered PointCloud: " << ((_colored_pointcloud)?"On":"Off"));
         ROS_INFO_STREAM("Align Depth: " << ((_align_depth)?"On":"Off"));
         ROS_INFO_STREAM("Sync Mode: " << ((_sync_frames)?"On":"Off"));
 
@@ -334,6 +336,9 @@ void BaseRealSenseNode::setupPublishers()
             if (stream == DEPTH && _pointcloud)
             {
                 _pointcloud_xyz_publisher = _node_handle.advertise<sensor_msgs::PointCloud2>("depth/points", 1);
+            }
+            if (stream == DEPTH && _colored_pointcloud)
+            {
                 _pointcloud_xyzrgb_publisher = _node_handle.advertise<sensor_msgs::PointCloud2>("depth/color/points", 1);
             }
         }
@@ -650,7 +655,7 @@ void BaseRealSenseNode::setupStreams()
                                  _encoding);
                 }
 
-                if(_pointcloud && (0 != _pointcloud_xyzrgb_publisher.getNumSubscribers()))
+                if(_colored_pointcloud && (0 != _pointcloud_xyzrgb_publisher.getNumSubscribers()))
                 {
                     ROS_DEBUG("publishRgbToDepthPCTopic(...)");
                     publishRgbToDepthPCTopic(t, is_frame_arrived);
