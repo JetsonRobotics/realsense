@@ -314,7 +314,7 @@ void BaseRealSenseNode::setupPublishers()
             if (stream == DEPTH || stream == INFRA1 || stream == INFRA2)
                 rectified_image = true;
 
-            image_raw << _stream_name[stream] << "/image_" << ((rectified_image)?"rect_":"") << "raw";
+            image_raw << _stream_name[stream] << "/image_" << "raw"; // Simbe 1-18-2019:  << ((rectified_image)?"rect_":"")
             camera_info << _stream_name[stream] << "/camera_info";
 
             std::shared_ptr<FrequencyDiagnostics> frequency_diagnostics(new FrequencyDiagnostics(_fps[stream], _stream_name[stream], _serial_no));
