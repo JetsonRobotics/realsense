@@ -106,4 +106,3 @@
     <param name="aligned_depth_to_fisheye_frame_id" type="str"  value="$(arg camera)_aligned_depth_to_fisheye_frame"/>
   </node>
 </launch>
-

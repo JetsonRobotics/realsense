@@ -53,7 +53,7 @@ BaseRealSenseNode::BaseRealSenseNode(ros::NodeHandle& nodeHandle,
     _image_format[COLOR] = CV_8UC3;    // CVBridge type
     _encoding[COLOR] = sensor_msgs::image_encodings::RGB8; // ROS message type
     _unit_step_size[COLOR] = 3; // sensor_msgs::ImagePtr row step size
-    _stream_name[COLOR] = "color";
+    _stream_name[COLOR] = "rgb";
     _depth_aligned_encoding[COLOR] = sensor_msgs::image_encodings::TYPE_16UC1;
 
     // Types for fisheye stream
