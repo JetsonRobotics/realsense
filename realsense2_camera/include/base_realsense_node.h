@@ -67,7 +67,7 @@ namespace realsense2_camera
       diagnostic_updater::FrequencyStatus frequency_status_;
       diagnostic_updater::Updater diagnostic_updater_;
     };
-    typedef std::pair<image_transport::Publisher, std::shared_ptr<FrequencyDiagnostics>> ImagePublisherWithFrequencyDiagnostics;
+    typedef std::pair<image_transport::CameraPublisher, std::shared_ptr<FrequencyDiagnostics>> ImagePublisherWithFrequencyDiagnostics;
 
     /**
     Class to encapsulate a filter alongside its options
@@ -140,7 +140,6 @@ namespace realsense2_camera
         void publishFrame(rs2::frame f, const ros::Time& t,
                           const stream_index_pair& stream,
                           std::map<stream_index_pair, cv::Mat>& images,
-                          const std::map<stream_index_pair, ros::Publisher>& info_publishers,
                           const std::map<stream_index_pair, ImagePublisherWithFrequencyDiagnostics>& image_publishers,
                           std::map<stream_index_pair, int>& seq,
                           std::map<stream_index_pair, sensor_msgs::CameraInfo>& camera_info,
