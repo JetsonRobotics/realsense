@@ -187,13 +187,14 @@ namespace realsense2_camera
         std::map<stream_index_pair, int> _seq;
         std::map<stream_index_pair, int> _unit_step_size;
         std::map<stream_index_pair, sensor_msgs::CameraInfo> _camera_info;
-        bool _intialize_time_base;
-        double _camera_time_base;
+        //bool _intialize_time_base;
+        //double _camera_time_base;
+        //ros::Time _ros_time_base;
         std::map<stream_index_pair, std::vector<rs2::stream_profile>> _enabled_profiles;
 
         ros::Publisher _pointcloud_xyz_publisher;
         ros::Publisher _pointcloud_xyzrgb_publisher;
-        ros::Time _ros_time_base;
+
         bool _align_depth;
         bool _sync_frames;
         bool _pointcloud;

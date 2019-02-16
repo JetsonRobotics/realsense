@@ -17,7 +17,7 @@ BaseRealSenseNode::BaseRealSenseNode(ros::NodeHandle& nodeHandle,
     _dev(dev),  _node_handle(nodeHandle),
     _pnh(privateNodeHandle), _json_file_path(""),
     _serial_no(serial_no), _base_frame_id(""),
-    _intialize_time_base(false),
+    //_intialize_time_base(false),
     _namespace(getNamespaceStr())
 {
     // Types for depth stream
@@ -557,21 +557,21 @@ void BaseRealSenseNode::setupStreams()
                 // We compute a ROS timestamp which is based on an initial ROS time at point of first frame,
                 // and the incremental timestamp from the camera.
                 // In sync mode the timestamp is based on ROS time
-                if (false == _intialize_time_base)
-                {
-                    if (RS2_TIMESTAMP_DOMAIN_SYSTEM_TIME == frame.get_frame_timestamp_domain())
-                        ROS_WARN("Frame metadata isn't available! (frame_timestamp_domain = RS2_TIMESTAMP_DOMAIN_SYSTEM_TIME)");
+                // if (false == _intialize_time_base)
+                // {
+                //     if (RS2_TIMESTAMP_DOMAIN_SYSTEM_TIME == frame.get_frame_timestamp_domain())
+                //         ROS_WARN("Frame metadata isn't available! (frame_timestamp_domain = RS2_TIMESTAMP_DOMAIN_SYSTEM_TIME)");
 
-                    _intialize_time_base = true;
-                    _ros_time_base = ros::Time::now();
-                    _camera_time_base = frame.get_timestamp();
-                }
+                //     _intialize_time_base = true;
+                //     _ros_time_base = ros::Time::now();
+                //     //_camera_time_base = frame.get_timestamp();
+                // }
 
-                ros::Time t;
-                if (_sync_frames)
-                    t = ros::Time::now();
-                else
-                    t = ros::Time(_ros_time_base.toSec()+ (/*ms*/ frame.get_timestamp() - /*ms*/ _camera_time_base) / /*ms to seconds*/ 1000);
+                ros::Time t = ros::Time::now();
+                // if (_sync_frames)
+                //     t = ros::Time::now();
+                // else
+                //     t = ros::Time(_ros_time_base.toSec()+ (/*ms*/ frame.get_timestamp() - /*ms*/ _camera_time_base) / /*ms to seconds*/ 1000);
 
                 std::map<stream_index_pair, bool> is_frame_arrived(_is_frame_arrived);
                 std::vector<rs2::frame> frames;
@@ -737,8 +737,8 @@ void BaseRealSenseNode::setupStreams()
 
             sens.start([this](rs2::frame frame){
                 auto stream = frame.get_profile().stream_type();
-                if (false == _intialize_time_base)
-                    return;
+                // if (false == _intialize_time_base)
+                //     return;
 
                 ROS_DEBUG("Frame arrived: stream: %s ; index: %d ; Timestamp Domain: %s",
                           rs2_stream_to_string(frame.get_profile().stream_type()),
@@ -749,8 +749,8 @@ void BaseRealSenseNode::setupStreams()
                 if (0 != _info_publisher[stream_index].getNumSubscribers() ||
                     0 != _imu_publishers[stream_index].getNumSubscribers())
                 {
-                    double elapsed_camera_ms = (/*ms*/ frame.get_timestamp() - /*ms*/ _camera_time_base) / /*ms to seconds*/ 1000;
-                    ros::Time t(_ros_time_base.toSec() + elapsed_camera_ms);
+                    //double elapsed_camera_ms = (/*ms*/ frame.get_timestamp() - /*ms*/ _camera_time_base) / /*ms to seconds*/ 1000;
+                    ros::Time t = ros::Time::now();//(_ros_time_base.toSec() + elapsed_camera_ms);
 
                     auto imu_msg = sensor_msgs::Imu();
                     imu_msg.header.frame_id = _optical_frame_id[stream_index];
