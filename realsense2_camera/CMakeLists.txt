@@ -14,7 +14,9 @@ find_package(catkin REQUIRED COMPONENTS
     tf
     dynamic_reconfigure
     diagnostic_updater
-    image_transport_plugins
+    compressed_depth_image_transport
+    compressed_image_transport
+    theora_image_transport
     )
 
 if(BUILD_WITH_OPENMP)
@@ -74,7 +76,9 @@ catkin_package(
     cv_bridge
     image_transport
     dynamic_reconfigure
-    image_transport_plugins
+    compressed_depth_image_transport
+    compressed_image_transport
+    theora_image_transport
     )
 
 add_library(${PROJECT_NAME}
